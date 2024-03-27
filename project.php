@@ -1,7 +1,7 @@
 <?php
-// Check if form is submitted
+// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Database connection parameters
+    // Connect to your database (Replace placeholders with your actual database credentials)
     $servername = "localhost";
     $username = "root";
     $password = "";
@@ -15,25 +15,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Retrieve form data
+    // Prepare and bind SQL statement to insert data into the database
+    $stmt = $conn->prepare("INSERT INTO project (name, email, datetime, destination, special_request) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $name, $email, $datetime, $destination, $special_request);
+
+    // Set parameters and execute the statement
     $name = $_POST['sname'];
     $email = $_POST['semail'];
     $datetime = $_POST['sdatetime'];
     $destination = $_POST['sselect'];
     $special_request = $_POST['sspecialrequest'];
 
-    // Prepare SQL statement to insert data into database
-    $sql = "INSERT INTO project (name, email, datetime, destination, special_request)
-            VALUES ('$name', '$email', '$datetime', '$destination', '$special_request')";
-
-    // Execute SQL statement
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute() === TRUE) {
         echo "New record created successfully";
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Error: " . $stmt->error;
     }
 
-    // Close database connection
+    // Close statement and database connection
+    $stmt->close();
     $conn->close();
 }
 ?>
